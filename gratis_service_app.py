@@ -165,22 +165,25 @@ if col_orderstatus in df.columns:
 else:
     st.warning("Orderstatus-kolom niet gevonden; alle regels worden meegenomen.")
 
-# Period selector
-min_date = pd.to_datetime(df[col_date]).min()
-max_date = pd.to_datetime(df[col_date]).max()
-if pd.isna(min_date) or pd.isna(max_date):
-    min_date = dt.date(2000,1,1)
-    max_date = dt.date.today()
+# Zorg dat 'Ophaaldatum' in datetime blijft voor filtering
+df["Ophaaldatum_dt"] = pd.to_datetime(df["Ophaaldatum"], errors="coerce", dayfirst=True)
+df["Ophaaldatum_nl"] = df["Ophaaldatum_dt"].dt.strftime("%d-%m-%Y")
+df["Ophaaldatum_kort"] = df["Ophaaldatum_dt"].dt.strftime("%a %d %b %Y")
 
-period = st.slider(
-    "Periode",
-    min_value=min_date.date(),
-    max_value=max_date.date(),
-    value=(max(min_date.date(), max_date.date() - dt.timedelta(days=30)), max_date.date()),
+min_date = df["Ophaaldatum_dt"].min()
+max_date = df["Ophaaldatum_dt"].max()
+
+    # Gebruiker kiest de periode
+start_date, end_date = st.date_input(
+    "Kies een datumbereik",
+    value=(min_date, max_date),
+    min_value=min_date,
+    max_value=max_date,
 )
-start_date, end_date = [pd.to_datetime(d) for d in period]
-mask_period = (df[col_date] >= start_date) & (df[col_date] <= end_date + pd.Timedelta(days=1) - pd.Timedelta(seconds=1))
-df = df[mask_period].copy()
+st.write(f"📅 Geselecteerde periode: {start_date.strftime('%d-%m-%Y')} t/m {end_date.strftime('%d-%m-%Y')}")
+
+# Filter toepassen
+df = df[(df["Ophaaldatum_dt"] >= pd.to_datetime(start_date)) & (df["Ophaaldatum_dt"] <= pd.to_datetime(end_date))]
 
 # Build detection patterns (extend with user inputs)
 if include_add.strip():
