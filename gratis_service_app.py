@@ -107,15 +107,41 @@ if uploaded is None:
     st.info("⬆️ Upload eerst een Excel-bestand om te starten.")
     st.stop()
 
-# Read Excel
-try:
-    xls = pd.ExcelFile(uploaded)
-    df = pd.read_excel(xls, sheet_name=0)
-except Exception as e:
-    st.error(f"Kon Excel niet lezen: {e}")
-    st.stop()
+# --- Slimme Excel-inlezer (zonder try/except) ---
+def smart_read_excel(file):
+    """
+    Probeert automatisch de juiste header-rij te detecteren
+    door de eerste 20 regels te scannen.
+    """
+    import pandas as pd
 
+    # Lees de eerste 20 rijen zonder header
+    preview = pd.read_excel(file, header=None, nrows=20, engine="openpyxl")
+
+    best_row = 0
+    best_score = -1
+
+    for i, row in preview.iterrows():
+        values = [str(x).strip() for x in row if pd.notna(x)]
+        # Score op basis van aantal niet-lege, unieke tekstwaarden
+        text_ratio = sum(x.isalpha() or x.replace(" ", "").isalpha() for x in values) / max(len(values), 1)
+        unique_ratio = len(set(values)) / max(len(values), 1)
+        score = len(values) + text_ratio * 5 + unique_ratio * 5
+        if score > best_score:
+            best_score = score
+            best_row = i
+
+    df = pd.read_excel(file, header=best_row, engine="openpyxl")
+
+    st.success(f"✅ Kolomkoppen automatisch gevonden op rij {best_row + 1}")
+    st.caption(f"Gevonden kolommen: {', '.join(map(str, df.columns[:8]))}{' ...' if len(df.columns) > 8 else ''}")
+
+    return df
+
+# --- Gebruik de slimme inlezer ---
+df = smart_read_excel(uploaded)
 orig_columns = df.columns.tolist()
+
 
 # Guess critical columns
 col_orderstatus = guess_column(["orderstatus", "status"], df.columns) or st.sidebar.selectbox("Kies kolom: Orderstatus", df.columns)
