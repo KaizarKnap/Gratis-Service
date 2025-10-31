@@ -90,7 +90,7 @@ with st.container():
         status_filter = st.multiselect(
             "Orderstatus (alleen deze worden geanalyseerd)",
             options=["Confirmed", "Edited", "Cancelled", "WaitingOnConfirmation", "Draft", "Completed"],
-            default=["Confirmed", "Edited"],
+            default=["Confirmed", "Edited", "Completed", "WaitingOnConfirmation", "Draft"],
         )
 
     st.divider()
