@@ -301,7 +301,7 @@ total_free = (
 with colA:
     st.metric("Aantal gratis orders (regels)", len(free_df))
 with colB:
-    st.metric("Periode", f"{start_date.date()} → {end_date.date()}")
+    st.metric("Periode", f"{start_date.strftime('%d-%m-%Y')} → {end_date.strftime('%d-%m-%Y')}")
 with colC:
     st.metric("Unieke locaties", free_df[col_location].nunique() if col_location in free_df.columns else 0)
 with colD:
