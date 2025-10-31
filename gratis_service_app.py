@@ -2,7 +2,7 @@ import io
 import re
 import datetime as dt
 from collections import Counter, defaultdict
-import locale
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -172,19 +172,11 @@ if pd.isna(min_date) or pd.isna(max_date):
     min_date = dt.date(2000,1,1)
     max_date = dt.date.today()
 
-locale.setlocale(locale.LC_TIME, "nl_NL.UTF-8")  # voor Nederlandse datumweergave, werkt op Linux/macOS
-# op Windows eventueel: locale.setlocale(locale.LC_TIME, "nld_nld")
-
-# Toon datums in Nederlands formaat (dd-mm-jjjj)
 period = st.slider(
     "Periode",
     min_value=min_date.date(),
     max_value=max_date.date(),
-    value=(
-        max(min_date.date(), max_date.date() - dt.timedelta(days=30)),
-        max_date.date()
-    ),
-    format="DD-MM-YYYY"
+    value=(max(min_date.date(), max_date.date() - dt.timedelta(days=30)), max_date.date()),
 )
 start_date, end_date = [pd.to_datetime(d) for d in period]
 mask_period = (df[col_date] >= start_date) & (df[col_date] <= end_date + pd.Timedelta(days=1) - pd.Timedelta(seconds=1))
