@@ -187,9 +187,16 @@ df["Datum_kort"] = df["Datum_dt"].dt.strftime("%a %d %b %Y")
 min_date = df["Datum_dt"].min().date() if pd.notna(df["Datum_dt"].min()) else dt.date(2000,1,1)
 max_date = df["Datum_dt"].max().date() if pd.notna(df["Datum_dt"].max()) else dt.date.today()
 
-# Standaardperiode (laatste 30 dagen)
+today = dt.date.today()
 default_start = dt.date(2025, 1, 1)
-default_end = dt.date.today()
+
+# Zorg dat defaults binnen het datumbereik van je data vallen
+if default_start < min_date:
+    default_start = min_date
+if today > max_date:
+    default_end = max_date
+else:
+    default_end = today
 
 # Dropdown-kalenders
 col1, col2 = st.columns(2)
