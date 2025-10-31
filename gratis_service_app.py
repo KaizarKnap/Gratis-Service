@@ -78,29 +78,38 @@ def rule_based_is_free(note: str) -> bool:
     exc = any(p.search(text) for p in EXCLUDE_RX)
     return bool(inc and not exc)
 
-# =============== Sidebar ===============
-st.sidebar.header("⚙️ Instellingen")
+# =============== Bovenste instellingen-sectie ===============
+with st.container():
+    st.markdown("### ⚙️ Instellingen")
 
-uploaded = st.sidebar.file_uploader("Upload Excel-bestand", type=["xlsx", "xls"])
+    # upload + orderstatus naast elkaar
+    col1, col2 = st.columns([2, 2])
+    with col1:
+        uploaded = st.file_uploader("📂 Upload Excel-bestand", type=["xlsx", "xls"])
+    with col2:
+        status_filter = st.multiselect(
+            "Orderstatus (alleen deze worden geanalyseerd)",
+            options=["Confirmed", "Edited", "Cancelled", "WaitingOnConfirmation", "Draft", "Completed"],
+            default=["Confirmed", "Edited"],
+        )
 
-status_filter = st.sidebar.multiselect(
-    "Orderstatus (alleen deze worden geanalyseerd)",
-    options=["Confirmed", "Edited", "Cancelled", "WaitingOnConfirmation", "Draft", "Completed"],
-    default=["Confirmed", "Edited"],
-)
+    st.divider()
 
-st.sidebar.divider()
+    # detectie-instellingen
+    with st.expander("🔍 Detectie-instellingen (geavanceerd)", expanded=False):
+        st.caption(
+            "Je kunt extra **inclusie**- en **exclusie**-woorden/regex toevoegen. "
+            "Ook kun je voorbeelden labelen om een eenvoudig model te trainen."
+        )
 
-st.sidebar.subheader("Detectie-instellingen (leren)")
-st.sidebar.caption(
-    "Je kunt extra **inclusie**- en **exclusie**-woorden/regex toevoegen. "
-    "Ook kun je voorbeelden labelen om een eenvoudig model te trainen."
-)
+        col3, col4 = st.columns(2)
+        with col3:
+            include_add = st.text_area("Extra inclusie-termen (regex, één per regel)", height=80, value="")
+        with col4:
+            exclude_add = st.text_area("Extra exclusie-termen (regex, één per regel)", height=80, value="")
 
-include_add = st.sidebar.text_area("Extra inclusie-termen (regex, één per regel)", height=80, value="")
-exclude_add = st.sidebar.text_area("Extra exclusie-termen (regex, één per regel)", height=80, value="")
+        use_model = st.toggle("📘 Model leren van gelabelde voorbeelden (TF-IDF + LogReg)", value=False)
 
-use_model = st.sidebar.toggle("Model leren van gelabelde voorbeelden (TF‑IDF + LogReg)", value=False)
 
 # =============== Main ===============
 if uploaded is None:
