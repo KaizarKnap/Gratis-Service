@@ -361,7 +361,7 @@ excel_bytes = make_excel_bytes(free_df, col_dienst if col_dienst in free_df.colu
 st.download_button(
     "Exporteren naar Excel",
     data=excel_bytes,
-    file_name=f"gratis_orders_{start_date.date()}_{end_date.date()}.xlsx",
+    file_name=f"gratis_orders_{start_date.strftime('%d-%m-%Y')}_{end_date.strftime('%d-%m-%Y')}.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     help="Exporteert gefilterde regels, met aparte tabs per Dienst facturatie (indien kolom aanwezig).",
 )
