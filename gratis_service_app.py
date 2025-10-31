@@ -24,6 +24,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
+try:
+    spacy.load("nl_core_news_sm")
+except OSError:
+    spacy_download("nl_core_news_sm")
+    
 # =============== Page & header ===============
 st.set_page_config(page_title="Gratis weggegeven orders - Analyzer", layout="wide")
 st.title("🧾 Gratis weggegeven orders — Analyzer")
