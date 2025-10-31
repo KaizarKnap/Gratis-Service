@@ -1,12 +1,3 @@
-# streamlit_app.py
-# -----------------
-# Gratis weggegeven orders — Analyzer (verbeterde versie)
-# - Hybride detectie: Regels + (optioneel) TF-IDF + LogisticRegression
-# - (Optioneel) NL lemmatisering met spaCy voor robuustere matching
-# - Uitleg per rij: waarom gedetecteerd ("reason"), model-score
-# - Performance: caching, veilig voor Streamlit Cloud
-# - Export: Excel met tabs per "Dienst facturatie" (indien aanwezig)
-
 import io
 import re
 import datetime as dt
@@ -37,12 +28,6 @@ st.markdown(
 Deze app vindt en analyseert orders die **gratis** of **niet te factureren** zijn
 (op basis van *notitie facturatie*), met filters op **periode** en **orderstatus**,
 en export naar Excel met **tabs per Dienst facturatie**.
-
-**Nieuw in deze versie**  
-- Hybride detectie (regels **+** optioneel ML-model)  
-- Optionele **lemmatisering** (spaCy) voor betere matching van vervoegingen  
-- **Uitleg per rij** waarom iets als gratis is aangemerkt  
-- Sneller en stabieler voor Streamlit Cloud
 """
 )
 
