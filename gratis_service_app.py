@@ -28,7 +28,7 @@ try:
     spacy.load("nl_core_news_sm")
 except OSError:
     spacy_download("nl_core_news_sm")
-    
+
 # =============== Page & header ===============
 st.set_page_config(page_title="Gratis weggegeven orders - Analyzer", layout="wide")
 st.title("🧾 Gratis weggegeven orders — Analyzer")
@@ -63,18 +63,29 @@ if nlp is None:
 
 # =============== Regex patronen (uitbreidbaar) ===============
 INCLUDE_PATTERNS_DEFAULT = [
+    # Algemene gratis-termen
     r"\bgratis\b(?!\s*(verzend|bezorg|transport|rijkosten|koerier|levering|leverings|aflever|zending|shipping))",
+    r"\bgratis\s*service\b",
     r"\bkosteloos\b(?!\s*(verzend|bezorg|transport|rijkosten))",
     r"\bkostenloos\b(?!\s*(verzend|bezorg|transport|rijkosten))",
     r"\bzonder\s*kosten\b(?!\s*(verzend|bezorg|transport|rijkosten))",
     r"\b0\s*(euro|€)\b",
     r"\bpro\s*bono\b",
-    r"\bfree\s*(of\s*charge)?\b(?!\s*(shipping))",
     r"\bkostenvrij\b(?!\s*(verzend|bezorg|transport|rijkosten))",
     r"\bvergoeding\s*=\s*0\b",
     r"\bniet\s*factureren\b",
     r"\bniet\s*in\s*rekening\s*brengen\b",
-    r"\bgeheel\s*gratis\b|\bvolledig\s*gratis\b",
+    r"\bniet\s*doorbelasten\b",
+    r"\bgeen\s*factuur\b",
+    r"\bgeen\s*kosten\s*berekenen\b",
+    r"\bniet\s*berekenen\b",
+    r"\bvolledig\s*gratis\b",
+    r"\bgeheel\s*gratis\b",
+    r"\bgratis\s*herstelling\b",
+    r"\bgarantie\s*geval\b",
+    r"\bonder\s*garantie\b",
+    r"\buit\s*coulance\b",
+    r"\bservice\s*zonder\s*kosten\b",
 ]
 EXCLUDE_PATTERNS_DEFAULT = [
     r"\bgratis\s*(verzend|bezorg)kosten\b",
