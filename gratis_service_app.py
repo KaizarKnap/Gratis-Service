@@ -232,7 +232,17 @@ free_df = df[df["__is_free__"]].copy()
 # ====== KPI's ======
 st.subheader("📈 Overzicht")
 colA, colB, colC, colD = st.columns(4)
-total_free = float(free_df[col_amount].fillna(0).replace({",": "."}, regex=True).astype(str).str.replace(",", ".").str.replace(" ", "").astype(float)) if col_amount in free_df.columns else 0.0
+total_free = (
+    free_df[col_amount]
+    .fillna(0)
+    .astype(str)
+    .str.replace(",", ".")
+    .str.replace(" ", "")
+    .replace("", "0")
+    .astype(float)
+    .sum()
+    if col_amount in free_df.columns else 0.0
+)
 with colA:
     st.metric("Aantal gratis orders (regels)", len(free_df))
 with colB:
