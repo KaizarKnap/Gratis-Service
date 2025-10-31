@@ -141,7 +141,7 @@ with st.container():
 
     st.divider()
 
-    with st.expander("🔍 Detectie-instellingen (geavanceerd)", expanded=False):
+    with st.expander("🔍 Detectie-instellingen (geavanceerd/niet aanraken)", expanded=False):
         st.caption(
             "Voeg extra **inclusie**- en **exclusie**-regex toe en kies of je het ML-model wil gebruiken. "
             "Het eindresultaat combineert regels + model (gewichten instelbaar)."
