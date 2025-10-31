@@ -152,38 +152,65 @@ col_created_by = guess_column(["aangemaakt door", "aangemaakt_door", "auteur", "
 col_location = guess_column(["locatienummer", "locatie", "plaats"], df.columns) or st.sidebar.selectbox("Kies kolom: Locatie", df.columns)
 col_amount = guess_column(["verkooptarief", "totaal", "bedrag", "prijs"], df.columns) or st.sidebar.selectbox("Kies kolom: Verkooptarief (totaal)", df.columns)
 
-# Cast date
+# --- Datumkolom controleren en voorbereiden ---
 if col_date not in df.columns:
     st.error("Ik kan de datumkolom niet vinden. Selecteer of hernoem de juiste kolom.")
     st.stop()
 
-df[col_date] = pd.to_datetime(df[col_date], errors="coerce")
+# Zet om naar datetime
+df[col_date] = pd.to_datetime(df[col_date], errors="coerce", dayfirst=True)
 
-# Filter by status
+# Filter op status
 if col_orderstatus in df.columns:
     df = df[df[col_orderstatus].astype(str).isin(status_filter)]
 else:
     st.warning("Orderstatus-kolom niet gevonden; alle regels worden meegenomen.")
 
-# Zorg dat 'Ophaaldatum' in datetime blijft voor filtering
-df["Ophaaldatum_dt"] = pd.to_datetime(df["Ophaaldatum"], errors="coerce", dayfirst=True)
-df["Ophaaldatum_nl"] = df["Ophaaldatum_dt"].dt.strftime("%d-%m-%Y")
-df["Ophaaldatum_kort"] = df["Ophaaldatum_dt"].dt.strftime("%a %d %b %Y")
+# ===== 📅 Kalender-selectie voor periode =====
+st.subheader("📅 Periode selectie")
 
-min_date = df["Ophaaldatum_dt"].min()
-max_date = df["Ophaaldatum_dt"].max()
+# Maak extra datumvelden voor visuele weergave
+df["Datum_dt"] = pd.to_datetime(df[col_date], errors="coerce", dayfirst=True)
+df["Datum_nl"] = df["Datum_dt"].dt.strftime("%d-%m-%Y")
+df["Datum_kort"] = df["Datum_dt"].dt.strftime("%a %d %b %Y")
 
-    # Gebruiker kiest de periode
-start_date, end_date = st.date_input(
-    "Kies een datumbereik",
-    value=(min_date, max_date),
-    min_value=min_date,
-    max_value=max_date,
-)
-st.write(f"📅 Geselecteerde periode: {start_date.strftime('%d-%m-%Y')} t/m {end_date.strftime('%d-%m-%Y')}")
+# Bepaal bereik
+min_date = df["Datum_dt"].min().date() if pd.notna(df["Datum_dt"].min()) else dt.date(2000,1,1)
+max_date = df["Datum_dt"].max().date() if pd.notna(df["Datum_dt"].max()) else dt.date.today()
+
+# Standaardperiode (laatste 30 dagen)
+default_start = max(min_date, max_date - dt.timedelta(days=30))
+default_end = max_date
+
+# Dropdown-kalenders
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input(
+        "Begindatum",
+        value=default_start,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD-MM-YYYY"
+    )
+with col2:
+    end_date = st.date_input(
+        "Einddatum",
+        value=default_end,
+        min_value=min_date,
+        max_value=max_date,
+        format="DD-MM-YYYY"
+    )
+
+if start_date > end_date:
+    st.warning("De begindatum ligt na de einddatum – pas dit aan.")
+    st.stop()
+
+# Toon gekozen periode
+st.caption(f"Geselecteerde periode: {start_date.strftime('%d-%m-%Y')} t/m {end_date.strftime('%d-%m-%Y')}")
 
 # Filter toepassen
-df = df[(df["Ophaaldatum_dt"] >= pd.to_datetime(start_date)) & (df["Ophaaldatum_dt"] <= pd.to_datetime(end_date))]
+mask_period = (df["Datum_dt"] >= pd.to_datetime(start_date)) & (df["Datum_dt"] <= pd.to_datetime(end_date))
+df = df[mask_period].copy()
 
 # Build detection patterns (extend with user inputs)
 if include_add.strip():
